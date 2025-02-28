@@ -1,95 +1,103 @@
-#Project Generation Orders
+# Project Generation Orders
 
-#Генератор заказов 0.3.0
+## Генератор заказов 0.3.0
 
-<b>1. Описание решения</b>
+### 1. Описание решения
 
-Приложение - "Генератор заказов" реализует функционал по заказу товаров и услуг, например, для интернет магазина. Реализована модульная система с возможностью реплицирования (Master-Replica) и партицирования данных по городам в БД Postgres.
+Приложение - "Генератор заказов" реализует функционал по заказу товаров и услуг, например, для интернет-магазина. В нем реализована модульная система с возможностью репликации (Master-Replica) и партиционирования данных по городам в базе данных Postgres.
 
-Исходные файлы приложения доступны в общем репозитории на github: https://github.com/nickfrolov2/orders-generator
+Исходные файлы приложения доступны в общем репозитории на GitHub: 
+[GitHub Repository](https://github.com/nickfrolov2/orders-generator)
 
-В локальном репозитории для клонирования: git@gitlaboff.devopsf.ru:mygroup1/test_project_frolovna.git и https://gitlaboff.devopsf.ru/mygroup1/test_project_frolovna.git
+Локальный репозиторий для клонирования:
+- SSH: `git@gitlaboff.devopsf.ru:mygroup1/test_project_frolovna.git`
+- HTTPS: `https://gitlaboff.devopsf.ru/mygroup1/test_project_frolovna.git`
 
-Подключение репозитория через helm:
+Подключение репозитория через Helm:
 
+```bash
 helm repo add orders https://raw.githubusercontent.com/nickfrolov2/orders-generator/refs/heads/main/
+```
 
 Запуск/установка производится с помощью команды:
 
+```bash
 helm install orders orders_generator/project_orders 
+```
 
+### 2. Описание компонентов и их взаимодействие
 
-<b>2. Описание компонентов и их взаимподействие</b>
+- **api-deployment.yml**  
+  Приложение API `api-orders-generator` разворачивается из образа Docker контейнера `nikolayfrolov1986/api-orders-generator:2.1`, скачиваемого из публичного Docker Hub. Исходный файл с Dockerfile находится в корне проекта в папке GO.
 
-<b>api-deployment.yml</b> 
+- **api-service.yml**  
+  Сервис для API.
 
-- приложение api api-orders-generator разворачивается из образа докер контейнера nikolayfrolov1986/api-orders-generator:2.1, происходит скачивание из публичного docker hub. Исходный файл с Dockerfile находится в корне проекта в папке GO/
+- **ingress.yml**  
+  Ingress, пробрасывает host и порт до api-service.
 
-<b>api-service.yml</b> 
+- **haproxy-deployment.yml, haproxy-service.yaml, haproxy-configmap.yml**  
+  HAProxy выполняет роль балансировщика между двумя базами данных Postgres: `postgres-shards-0` и `postgres-shards-1`.
 
-- сервис для api
+- **postgres-statefulset.yml, postgres-shards-service.yml, postgres-job1.yml, postgres-job2.yml, orders-replica-shards1-configmap.yml, orders-replica-shards2-configmap.yml**  
+  В statefulset создаются два пода с контейнером Postgres: `postgres-shards-0` и `postgres-shards-1`. Для каждого пода монтируется `postgres-storage (PVC)`. Job1 подключается к `postgres-shards-0` и выполняет команду на создание таблицы `orders`, деля её на партиции по городам, создавая отдельную таблицу для каждого города, устанавливает уровень `logical` и создает публикацию для таблицы `orders`. Job2 работает аналогично для `postgres-shards-1`.
 
-<b>ingress.yml</b> 
+- **postgres-replica-statefulset.yml, orders-replica-configmap.yml, postgres-job3.yml**  
+  Создается база Postgres `postgres-replica-0` для репликации данных с двух баз: `postgres-shards-0` и `postgres-shards-1`. Job3 создает таблицу `orders`, разделяет её на партиции по городам, создавая отдельную таблицу для каждого города, устанавливает уровень `replica` и создает подписку на таблицу `orders` баз `postgres-shards-0` и `postgres-shards-1`.
 
-- ingress, пробрасывает host и порт до api-service
+### 3. Разворачивание среды для приложения
 
-<b>haproxy-deployment.yml, haproxy-service.yaml, haproxy-configmap.yml</b> 
+Для работы приложения понадобятся инструменты:
+- Helm
+- Minikube (или аналогичные: Docker Compose, Rancher)
 
-- haproxy выполняет роль балансировщика между двумя базами данных Postgres: 
+### 4. Запуск приложения
 
-postgres-shards-0
-postgres-shards-1
+Подключение репозитория через Helm:
 
-<b>postgres-statefulset.yml, postgres-shards-service.yml, postgres-job1.yml, postgres-job2.yml, orders-replica-shards1-configmap.yml, orders-replica-shards2-configmap.yml <b> 
-
-- В statefulset создается два пода с контейнером Postgres postgres-shards-0 и postgres-shards-1. Для каждого монтируется postgres-storage(pvc). Job1 подключается к postgres-shards-0 и запускает команду на создание таблицы orders, разделяет на партиции по городам, создает отдельную таблицу для каждого города, устанавливает уровень logical и создает публикацию таблицы orders. Job2 – работает аналогично Job1, только для postgres-shards-1.
-
-<b>postgres-replica-statefulset.yml, orders-replica-configmap.yml, postgres-job3.yml</b> 
-
-- создается база Postgres postgres-replica-0 для реплицирования данных с двух баз postgres-shards-0 и postgres-shards-1. Job3 создает таблицу orders, разделяет на партиции по городам, создает отдельную таблицу для каждого города, устанавливает уровень replica и создает подписку на таблицу orders баз postgres-shards-0 и postgres-shards-1.
-
-<b>3. Разворачивание среды для приложения</b>
-
-Для работы приложения понадобятся инструменты: helm, minikube (аналог, docker compose, rancher) 
-
-<b>4. Запуск приложения.</b>
-
-Подключение репозитория через helm:
-
+```bash
 helm repo add orders https://raw.githubusercontent.com/nickfrolov2/orders-generator/refs/heads/main/
+```
 
 Запуск/установка производится с помощью команды:
 
+```bash
 helm install/upgrade orders orders_generator/project_orders 
+```
 
-Должны увидеть успешную установку:
+Вы должны увидеть успешную установку:
 
+```bash
 PS C:\Users\1> helm upgrade orders orders_generator/project_orders
 
 Release "orders" has been upgraded. Happy Helming!
 
 NAME: orders
-
 LAST DEPLOYED: Fri Feb 28 21:33:29 2025
-
 NAMESPACE: default
-
 STATUS: deployed
-
 REVISION: 2
-
 TEST SUITE: None
 
 NOTES:
 
-#Project Orders by Frolov N.A.(DevOps-kurs from RTK)
+# Project Orders by Frolov N.A. (DevOps-kurs from RTK)
 
-#Приложение "Генератор заказов" успешно установлено!
+# Приложение "Генератор заказов" успешно установлено!
 
-#Приятного использования! :-)
+# Приятного использования! :-)
+```
 
-Для windows/linux/mac:
+Для Windows/Linux/Mac:
 
-В файле hosts добавляем строки -  “IP кластера”   generator-orders.test
+В файле `hosts` добавляем строку:
 
-В браузере проверяем по ссылке http://generator-orders.test/
+```
+<IP кластера> generator-orders.test
+```
+
+В браузере проверяем по ссылке: [http://generator-orders.test](http://generator-orders.test/)
+```
+
+### Примечание:
+Убедитесь, что все компоненты настроены корректно и кластеры работают, прежде чем переходить к тестированию приложения.
