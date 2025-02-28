@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма заказа</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        form {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Генератор заказа. Тест.</h2>
+    <form id="orderForm">
+        <input type="text" id="customer_name" placeholder="Имя клиента" required>
+        <select id="city">
+            <option value="Moscow">Москва</option>
+            <option value="Saint_Petersburg">Санкт-Петербург</option>
+            <option value="Krasnodar">Краснодар</option>
+            <option value="Ekaterinburg">Екатеринбург</option>
+            <option value="Vyksa">Выкса</option>
+            <option value="Murom">Муром</option>
+            <option value="Samara">Самара</option>
+            <option value="Tula">Тула</option>
+            <option value="Tver">Тверь</option>
+        </select>
+        <input type="text" id="phone_number" placeholder="Телефон" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="text" id="article_number" placeholder="Артикул товара" required>
+        <button type="submit">Отправить заказ</button>
+    </form>
+    <p id="responseMessage"></p>
+
+    <script>
+        document.getElementById("orderForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            let orderData = {
+                customer_name: document.getElementById("customer_name").value,
+                city: document.getElementById("city").value,
+                phone_number: document.getElementById("phone_number").value,
+                email: document.getElementById("email").value,
+                article_number: document.getElementById("article_number").value
+            };
+
+            fetch("/order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("responseMessage").innerText = `${data.message} ${data.order_id}`;
+
+                })
+
+                .catch(error => {
+                    document.getElementById("responseMessage").innerText = "Ошибка отправки.";
+                    console.error(error);
+                });
+        });
+    </script>
+</body>
+
+</html>
