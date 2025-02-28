@@ -14,7 +14,7 @@
 - HTTPS: https://gitlaboff.devopsf.ru/mygroup1/test_project_frolovna.git  
 
 Подключение репозитория через Helm:  
-helm repo add orders https://raw.githubusercontent.com/nickfrolov2/orders-generator/refs/heads/main/
+helm repo add orders_generator https://raw.githubusercontent.com/nickfrolov2/orders-generator/refs/heads/main/
   
 Запуск/установка производится с помощью команды:  
 helm install orders orders_generator/project_orders  
