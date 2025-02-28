@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-orders-generator
+  template:
+    metadata:
+      labels:
+        app: api-orders-generator
+    spec:
+      containers:
+      - name: api-orders-generator
+        image: nikolayfrolov1986/api-orders-generator:2.1
+        ports:
+        - containerPort: 8080 # Убедись, что Go-приложение слушает этот порт

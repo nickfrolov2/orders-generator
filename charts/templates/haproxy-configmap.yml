@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-config
+data:
+  haproxy.cfg: |
+    defaults
+      log global
+      mode tcp
+      timeout connect 5s
+      timeout client 1m
+      timeout server 1m
+
+    frontend postgres_front
+        bind *:5432
+        mode tcp
+        default_backend postgres_back
+
+    backend postgres_back
+        mode tcp
+        balance roundrobin
+        server postgres-shards-0 postgres-shards-0.postgres:5432 check 
+        server postgres-shards-1 postgres-shards-1.postgres:5432 check

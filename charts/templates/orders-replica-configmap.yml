@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orders-replica-config
+data:
+  init2.sql: |
+    CREATE TABLE orders (
+    id SERIAL,
+    customer_name TEXT,
+    phone_number TEXT,
+    email TEXT,
+    article_number TEXT,
+    city TEXT NOT NULL,
+    PRIMARY KEY (id, city)
+    ) PARTITION BY LIST (city);
+
+
+    CREATE TABLE orders_shard_1 PARTITION OF orders FOR VALUES IN ('Moscow');
+    CREATE TABLE orders_shard_2 PARTITION OF orders FOR VALUES IN ('Vyksa');
+    CREATE TABLE orders_shard_3 PARTITION OF orders FOR VALUES IN ('Saint_Petersburg');
+    CREATE TABLE orders_shard_4 PARTITION OF orders FOR VALUES IN ('Krasnodar');
+    CREATE TABLE orders_shard_5 PARTITION OF orders FOR VALUES IN ('Ekaterinburg');
+    CREATE TABLE orders_shard_6 PARTITION OF orders FOR VALUES IN ('Krasnoyarsk');
+    CREATE TABLE orders_shard_7 PARTITION OF orders FOR VALUES IN ('Murom');
+    CREATE TABLE orders_shard_8 PARTITION OF orders FOR VALUES IN ('Samara');
+    CREATE TABLE orders_shard_9 PARTITION OF orders FOR VALUES IN ('Tula');
+    CREATE TABLE orders_shard_10 PARTITION OF orders FOR VALUES IN ('Tver');
+
+    CREATE SUBSCRIPTION orders_sub1 CONNECTION 'host=postgres-shards-0.postgres port=5432 user=postgres password=postgres dbname=postgres' PUBLICATION orders_pub WITH (copy_data = false);
+    CREATE SUBSCRIPTION orders_sub2 CONNECTION 'host=postgres-shards-1.postgres port=5432 user=postgres password=postgres dbname=postgres' PUBLICATION orders_pub WITH (copy_data = false);

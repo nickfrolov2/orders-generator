@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+spec:
+  selector:
+    app: api-orders-generator
+  ports:
+    - protocol: TCP
+      port: 80          # внешний порт для Ingress
+      targetPort: 8080  # порт внутри контейнера
+  type: ClusterIP       # Внутренний сервис (доступ только через Ingress)

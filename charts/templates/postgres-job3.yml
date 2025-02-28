@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-init-job2
+spec:
+  ttlSecondsAfterFinished: 60  # Удалит Job через 60 секунд после завершения
+  template:
+    spec:
+      containers:
+        - name: postgres-init2
+          image: postgres:16
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret # Название секрета
+                  key: POSTGRES_PASSWORD # Поле с паролем
+          command:
+            - "sh"
+            - "-c"
+            - "psql -h postgres-replica-0.postgres-replica -U postgres -d postgres -f /init2.sql"
+          volumeMounts:
+            - name: init-script2
+              mountPath: /init2.sql
+              subPath: init2.sql
+      volumes:
+        - name: init-script2
+          configMap:
+            name: orders-replica-config
+            items:
+              - key: init2.sql
+                path: init2.sql
+      restartPolicy: OnFailure

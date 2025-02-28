@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-init-job0
+spec:
+  ttlSecondsAfterFinished: 60  # Удалит Job через 60 секунд после завершения
+  template:
+    spec:
+      containers:
+        - name: postgres-init0
+          image: postgres:16
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          command:
+            - "sh"
+            - "-c"
+            - "psql -h postgres-shards-0.postgres -U postgres -d postgres -f /init0.sql"
+          volumeMounts:
+            - name: init-script0
+              mountPath: /init0.sql
+              subPath: init0.sql
+      volumes:
+        - name: init-script0
+          configMap:
+            name: orders-replica-shards0-config
+            items:
+              - key: init0.sql
+                path: init0.sql
+      restartPolicy: OnFailure
