@@ -73,12 +73,11 @@ TEST SUITE: None
   
 
 NOTES:  
+###Project Orders by Frolov N.A. (DevOps-курс от RTK)
 
-# Project Orders by Frolov N.A. (DevOps-курс от RTK)
+###Приложение "Генератор заказов" успешно установлено!
 
-# Приложение "Генератор заказов" успешно установлено!
-
-# Приятного использования! :-)
+###Приятного использования! :-)
 
 
 Для Windows/Linux/Mac:  
