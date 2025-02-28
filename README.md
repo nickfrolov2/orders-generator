@@ -9,7 +9,7 @@
 Исходные файлы приложения доступны в общем репозитории на GitHub:  
 [GitHub Repository](https://github.com/nickfrolov2/orders-generator)  
 
-Локальный репозиторий для клонирования:  
+Локальный репозиторий для клонирования (необходима авторизация):  
 - SSH: git@gitlaboff.devopsf.ru:mygroup1/test_project_frolovna.git  
 - HTTPS: https://gitlaboff.devopsf.ru/mygroup1/test_project_frolovna.git  
 
