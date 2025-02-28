@@ -75,7 +75,7 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Получаем порт из флага командной строки
-	dbHost := flag.String("db-host", "127.0.0.1", "IP-адрес базы данных")
+	dbHost := flag.String("db-host", "haproxy-service", "IP-адрес базы данных")
 	dbPort := flag.Int("db-port", 5432, "Порт для подключения к БД")
 	serverPort := flag.Int("server-port", 8080, "Порт для веб-сервера")
 	flag.Parse()
