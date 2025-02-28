@@ -70,7 +70,6 @@ NAMESPACE: default
 STATUS: deployed  
 REVISION: 2  
 TEST SUITE: None  
-  
 
 NOTES:  
 ###Project Orders by Frolov N.A. (DevOps-курс от RTK)
@@ -78,6 +77,8 @@ NOTES:
 ###Приложение "Генератор заказов" успешно установлено!
 
 ###Приятного использования! :-)
+
+----------------------------------------------------
 
 
 Для Windows/Linux/Mac:  
