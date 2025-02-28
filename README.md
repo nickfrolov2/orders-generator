@@ -16,7 +16,7 @@
 
 <b>2. Описание компонентов и их взаимподействие</b>
 
-api-deployment (api-deployment.yml) - Приложение разворачивается из образа докер контейнера nikolayfrolov1986/api-orders-generator:2.1
+<b>api-deployment (api-deployment.yml)</b> - Приложение api api-orders-generator разворачивается из образа докер контейнера nikolayfrolov1986/api-orders-generator:2.1, происходит скачивание из публичного docker hub. Исходный файл с Dockerfile находится в корне проекта в папке GO/
 
 3. Разворачивание среды для приложения
 4. Запуск приложения.
