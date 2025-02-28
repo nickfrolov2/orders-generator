@@ -49,7 +49,7 @@ helm install orders orders_generator/project_orders
 
 Для работы приложения понадобятся инструменты:  
 - Helm  
-- Minikube (или аналогичные: Docker Compose, Rancher)  
+- Minikube (или аналогичные: Docker, Rancher, Kubeadm и т.д.)  
 
 ### 4. Запуск приложения  
 
