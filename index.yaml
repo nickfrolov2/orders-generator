@@ -2,8 +2,18 @@ apiVersion: v1
 entries:
   project_orders:
   - apiVersion: v2
+    appVersion: 1.16.5
+    created: "2025-03-01T16:59:53.6057848+03:00"
+    description: Orders Service. Generator orders. Frolov N.A.
+    digest: cec8f3d2e2fed2d4ab2e80fb6a617a27d9b740293ed1014db010f2731f26e141
+    name: project_orders
+    type: application
+    urls:
+    - project_orders-0.3.5.tgz
+    version: 0.3.5
+  - apiVersion: v2
     appVersion: 1.16.1
-    created: "2025-02-28T22:16:16.4427009+03:00"
+    created: "2025-03-01T16:59:53.6052623+03:00"
     description: Orders Service. Generator orders. Frolov N.A.
     digest: 62da106a64931d6e068e963478d44dd5a343d1b491d91a0be9f315a5c00c2ccb
     name: project_orders
@@ -13,7 +23,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-02-28T22:16:16.4421458+03:00"
+    created: "2025-03-01T16:59:53.5888977+03:00"
     description: Orders Service. Generator orders.
     digest: abc07c079ff566edfb9eb7067d524e0664256f535c79546f14ee4b502cd69c4d
     name: project_orders
@@ -21,4 +31,4 @@ entries:
     urls:
     - project_orders-0.1.5.tgz
     version: 0.1.5
-generated: "2025-02-28T22:16:16.4371691+03:00"
+generated: "2025-03-01T16:59:53.5821228+03:00"

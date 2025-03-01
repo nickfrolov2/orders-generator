@@ -1,0 +1,104 @@
+stages:
+  - setup_helm
+  - package_helm
+  - push_container_registry
+  - deploy_helm_kubernetes
+
+variables:
+  HELM_VERSION: "v3.12.0"
+  PROJECT_NAME: "generation-orders"
+  CHART_NAME: "generation-orders"
+
+setup-helm:
+  stage: setup_helm
+  image: alpine:latest
+  tags:
+    - docker
+  before_script:
+    - echo "🔽 Устанавливаем зависимости..."
+    - apk --no-cache add bash curl wget tar gzip
+
+    - echo "🔽 Скачиваем и устанавливаем Helm..."
+    - wget https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
+    - tar -zxvf helm-${HELM_VERSION}-linux-amd64.tar.gz
+    - mv linux-amd64/helm /usr/local/bin/helm
+    - chmod +x /usr/local/bin/helm
+
+  script:
+    - echo "✅ Проверяем установку Helm..."
+    - helm version
+
+  only:
+    - main
+
+package-helm:
+  stage: package_helm
+  image: alpine:latest
+  tags:
+    - docker
+  before_script:
+    - apk add --no-cache bash curl wget tar gzip
+
+    - echo "🔽 Устанавливаем Helm..."
+    - wget https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
+    - tar -zxvf helm-${HELM_VERSION}-linux-amd64.tar.gz
+    - mv linux-amd64/helm /usr/local/bin/helm
+    - chmod +x /usr/local/bin/helm
+
+  script:
+    - echo "📦 Пакуем Helm Chart"
+    - mkdir -p charts_result/
+    - helm package charts/ -d charts_result/
+    - helm repo index charts_result/
+
+    - echo "📂 Проверяем содержимое charts_result/"
+    - ls -lah charts_result/
+
+  artifacts:
+    paths:
+      - charts_result/*.tgz
+      - "charts_result/index.yaml"
+
+  only:
+    - main
+
+push-helm:
+  stage: push_container_registry
+  image: alpine:latest
+  tags:
+    - docker
+  needs: ["package-helm"]
+
+  before_script:
+    - apk add --no-cache bash curl wget tar gzip
+    - wget https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
+    - tar -zxvf helm-${HELM_VERSION}-linux-amd64.tar.gz
+    - mv linux-amd64/helm /usr/local/bin/helm
+    - chmod +x /usr/local/bin/helm
+
+  script:
+    - echo "🔑 Авторизация в GitLab Container Registry"
+    - echo "$CI_REGISTRY_PASSWORD" | helm registry login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+
+    - echo "📂 Проверяем файлы перед загрузкой..."
+    - ls -lah charts_result/
+
+    - CHART_PACKAGE=$(ls charts_result/*.tgz)
+    - echo "⏫ Загружаем Helm Chart $CHART_PACKAGE в GitLab Container Registry"
+    - helm push "$CHART_PACKAGE" oci://"$CI_REGISTRY_IMAGE/generation_orders"
+  only:
+    - main
+
+deploy_helm:
+  stage: deploy_helm_kubernetes
+  image: alpine:latest
+  tags:
+    - docker
+  variables:
+    GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+    # SSH_PASSWORD: ""
+  before_script:
+    - apk add --no-cache openssh-client sshpass
+  script:
+    - sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no user@host "minikube ip"
+    - sshpass -p "$SSH_PASSWORD" ssh user@host "helm upgrade --install orders oci://gitlaboff.devopsf.ru:5050/mygroup1/test_project_frolovna/generation_orders/project_orders"
